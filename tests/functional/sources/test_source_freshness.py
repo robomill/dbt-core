@@ -43,9 +43,9 @@ from tests.functional.sources.fixtures import error_models,override_freshness_mo
         )
         self.last_inserted_time = insert_time.strftime(
             "%Y-%m-%dT%H:%M:%S+00:00")
-    
-    
-    
+
+
+
     def _assert_freshness_results(self, path, state):
         assert os.path.exists(path)
         with open(path) as fp:
@@ -207,7 +207,7 @@ from tests.functional.sources.fixtures import error_models,override_freshness_mo
     @pytest.fixture(scope="class")
     def model_path(self):
         return "override_freshness_models"
-    
+
     def get_result_from_unique_id(data, unique_id):
         try:
             return list(filter(lambda x : x['unique_id'] == unique_id,  data['results']))[0]
@@ -223,7 +223,7 @@ from tests.functional.sources.fixtures import error_models,override_freshness_mo
             ['source', 'freshness', '-o', path],
             expect_pass=False
         )
-        assert len(results) == 4 # freshness disabled for source_e       
+        assert len(results) == 4 # freshness disabled for source_e
 
         assert os.path.exists(path)
         with open(path) as fp:

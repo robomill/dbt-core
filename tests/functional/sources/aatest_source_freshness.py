@@ -21,11 +21,12 @@ class AnyStringWith:
         return self.contains in other
 
     def __repr__(self):
-        return 'AnyStringWith<{!r}>'.format(self.contains)
+        return "AnyStringWith<{!r}>".format(self.contains)
+
 
 class AnyFloat:
-    """Any float. Use this in assertEqual() calls to assert that it is a float.
-    """
+    """Any float. Use this in assertEqual() calls to assert that it is a float."""
+
     def __eq__(self, other):
         return isinstance(other, float)
 
@@ -33,16 +34,16 @@ class AnyFloat:
 class SuccessfulSourcesTest(BaseSourcesTest):
     @pytest.fixture(scope="class", autouse=True)
     def setUp(self, project):
-        self.run_dbt_with_vars(project, ['seed'])
+        self.run_dbt_with_vars(project, ["seed"])
         self.maxDiff = None
         self._id = 101
         # this is the db initial value
         self.last_inserted_time = "2016-09-19T14:45:51+00:00"
-        os.environ['DBT_ENV_CUSTOM_ENV_key'] = 'value'
+        os.environ["DBT_ENV_CUSTOM_ENV_key"] = "value"
 
         yield
 
-        del os.environ['DBT_ENV_CUSTOM_ENV_key']
+        del os.environ["DBT_ENV_CUSTOM_ENV_key"]
 
     def _set_updated_at_to(self, project, delta):
         insert_time = datetime.utcnow() + delta
@@ -55,74 +56,74 @@ class SuccessfulSourcesTest(BaseSourcesTest):
         VALUES (
             'blue',{id},'Jake','abc@example.com','192.168.1.1','{time}'
         )"""
-        quoted_columns = ','.join(
-            project.adapter.quote(c) for c in
-            ('favorite_color', 'id', 'first_name',
-             'email', 'ip_address', 'updated_at')
+        quoted_columns = ",".join(
+            project.adapter.quote(c)
+            for c in ("favorite_color", "id", "first_name", "email", "ip_address", "updated_at")
         )
         project.run_sql(
             raw_sql,
             kwargs={
-                'schema': project.test_schema,
-                'time': timestr,
-                'id': insert_id,
-                'source': project.adapter.quote('source'),
-                'quoted_columns': quoted_columns,
-            }
+                "schema": project.test_schema,
+                "time": timestr,
+                "id": insert_id,
+                "source": project.adapter.quote("source"),
+                "quoted_columns": quoted_columns,
+            },
         )
-        self.last_inserted_time = insert_time.strftime(
-            "%Y-%m-%dT%H:%M:%S+00:00")
+        self.last_inserted_time = insert_time.strftime("%Y-%m-%dT%H:%M:%S+00:00")
 
     def _assert_freshness_results(self, path, state):
         assert os.path.exists(path)
         with open(path) as fp:
             data = json.load(fp)
 
-        assert set(data) == {'metadata', 'results', 'elapsed_time'}
-        assert 'generated_at' in data['metadata']
-        assert isinstance(data['elapsed_time'], float)
-        self.assertBetween(data['metadata']['generated_at'],
-                           self.freshness_start_time)
-        assert data['metadata']['dbt_schema_version'] == 'https://schemas.getdbt.com/dbt/sources/v3.json'
-        assert data['metadata']['dbt_version'] == dbt.version.__version__
-        assert data['metadata']['invocation_id'] == dbt.tracking.active_user.invocation_id
-        key = 'key'
-        if os.name == 'nt':
+        assert set(data) == {"metadata", "results", "elapsed_time"}
+        assert "generated_at" in data["metadata"]
+        assert isinstance(data["elapsed_time"], float)
+        self.assertBetween(data["metadata"]["generated_at"], self.freshness_start_time)
+        assert (
+            data["metadata"]["dbt_schema_version"]
+            == "https://schemas.getdbt.com/dbt/sources/v3.json"
+        )
+        assert data["metadata"]["dbt_version"] == dbt.version.__version__
+        assert data["metadata"]["invocation_id"] == dbt.tracking.active_user.invocation_id
+        key = "key"
+        if os.name == "nt":
             key = key.upper()
-        assert data['metadata']['env'] == {key: 'value'}
+        assert data["metadata"]["env"] == {key: "value"}
 
         last_inserted_time = self.last_inserted_time
 
-        assert len(data['results']) == 1
+        assert len(data["results"]) == 1
 
         # TODO: replace below calls - could they be mroe sane?
-        assert data['results'] == [
+        assert data["results"] == [
             {
-                'unique_id': 'source.test.test_source.test_table',
-                'max_loaded_at': last_inserted_time,
-                'snapshotted_at': AnyStringWith(),
-                'max_loaded_at_time_ago_in_s': AnyFloat(),
-                'status': state,
-                'criteria': {
-                    'filter': None,
-                    'warn_after': {'count': 10, 'period': 'hour'},
-                    'error_after': {'count': 18, 'period': 'hour'},
+                "unique_id": "source.test.test_source.test_table",
+                "max_loaded_at": last_inserted_time,
+                "snapshotted_at": AnyStringWith(),
+                "max_loaded_at_time_ago_in_s": AnyFloat(),
+                "status": state,
+                "criteria": {
+                    "filter": None,
+                    "warn_after": {"count": 10, "period": "hour"},
+                    "error_after": {"count": 18, "period": "hour"},
                 },
-                'adapter_response': {},
-                'thread_id': AnyStringWith('Thread-'),
-                'execution_time': AnyFloat(),
-                'timing': [
+                "adapter_response": {},
+                "thread_id": AnyStringWith("Thread-"),
+                "execution_time": AnyFloat(),
+                "timing": [
                     {
-                        'name': 'compile',
-                        'started_at': AnyStringWith(),
-                        'completed_at': AnyStringWith(),
+                        "name": "compile",
+                        "started_at": AnyStringWith(),
+                        "completed_at": AnyStringWith(),
                     },
                     {
-                        'name': 'execute',
-                        'started_at': AnyStringWith(),
-                        'completed_at': AnyStringWith(),
-                    }
-                ]
+                        "name": "execute",
+                        "started_at": AnyStringWith(),
+                        "completed_at": AnyStringWith(),
+                    },
+                ],
             }
         ]
 
@@ -134,96 +135,118 @@ class TestSourceFreshness(SuccessfulSourcesTest):
         # by default, our data set is way out of date!
         self.freshness_start_time = datetime.utcnow()
         results = self.run_dbt_with_vars(
-            ['source', 'freshness', '-o', 'target/error_source.json'],
-            expect_pass=False
+            ["source", "freshness", "-o", "target/error_source.json"], expect_pass=False
         )
         assert len(results) == 1
-        assert results[0].status == 'error'
-        self._assert_freshness_results('target/error_source.json', 'error')
+        assert results[0].status == "error"
+        self._assert_freshness_results("target/error_source.json", "error")
 
         self._set_updated_at_to(project, timedelta(hours=-12))
         self.freshness_start_time = datetime.utcnow()
         results = self.run_dbt_with_vars(
-            ['source', 'freshness', '-o', 'target/warn_source.json'],
+            ["source", "freshness", "-o", "target/warn_source.json"],
         )
         assert len(results) == 1
-        assert results[0].status == 'warn'
-        self._assert_freshness_results('target/warn_source.json', 'warn')
+        assert results[0].status == "warn"
+        self._assert_freshness_results("target/warn_source.json", "warn")
 
         self._set_updated_at_to(project, timedelta(hours=-2))
         self.freshness_start_time = datetime.utcnow()
         results = self.run_dbt_with_vars(
-            ['source', 'freshness', '-o', 'target/pass_source.json'],
+            ["source", "freshness", "-o", "target/pass_source.json"],
         )
         assert len(results) == 1
-        assert results[0].status == 'pass'
-        self._assert_freshness_results('target/pass_source.json', 'pass')
+        assert results[0].status == "pass"
+        self._assert_freshness_results("target/pass_source.json", "pass")
 
 
 class TestSourceSnapshotFreshness(SuccessfulSourcesTest):
-    def test_source_snapshot_freshness(self, project, ):
+    def test_source_snapshot_freshness(
+        self,
+        project,
+    ):
         """Ensures that the deprecated command `source snapshot-freshness`
         aliases to `source freshness` command.
         """
         self.freshness_start_time = datetime.utcnow()
         results = self.run_dbt_with_vars(
-            ['source', 'snapshot-freshness', '-o', 'target/error_source.json'],
-            expect_pass=False
+            ["source", "snapshot-freshness", "-o", "target/error_source.json"], expect_pass=False
         )
         assert len(results) == 1
-        assert results[0].status == 'error'
-        self._assert_freshness_results('target/error_source.json', 'error')
+        assert results[0].status == "error"
+        self._assert_freshness_results("target/error_source.json", "error")
 
         self._set_updated_at_to(project, timedelta(hours=-12))
         self.freshness_start_time = datetime.utcnow()
         results = self.run_dbt_with_vars(
-            ['source', 'snapshot-freshness', '-o', 'target/warn_source.json'],
+            ["source", "snapshot-freshness", "-o", "target/warn_source.json"],
         )
         assert len(results) == 1
-        assert results[0].status == 'warn'
-        self._assert_freshness_results('target/warn_source.json', 'warn')
+        assert results[0].status == "warn"
+        self._assert_freshness_results("target/warn_source.json", "warn")
 
         self._set_updated_at_to(project, timedelta(hours=-2))
         self.freshness_start_time = datetime.utcnow()
         results = self.run_dbt_with_vars(
-            ['source', 'snapshot-freshness', '-o', 'target/pass_source.json'],
+            ["source", "snapshot-freshness", "-o", "target/pass_source.json"],
         )
         assert len(results) == 1
-        assert results[0].status == 'pass'
-        self._assert_freshness_results('target/pass_source.json', 'pass')
+        assert results[0].status == "pass"
+        self._assert_freshness_results("target/pass_source.json", "pass")
 
 
 class TestSourceFreshnessSelection(SuccessfulSourcesTest):
-    def test_source_freshness_selection_select(self, project, ):
+    def test_source_freshness_selection_select(
+        self,
+        project,
+    ):
         """Tests node selection using the --select argument."""
         self._set_updated_at_to(project, timedelta(hours=-2))
         self.freshness_start_time = datetime.utcnow()
         # select source directly
         results = self.run_dbt_with_vars(
-            ['source', 'freshness', '--select',
-                'source:test_source.test_table', '-o', 'target/pass_source.json'],
+            [
+                "source",
+                "freshness",
+                "--select",
+                "source:test_source.test_table",
+                "-o",
+                "target/pass_source.json",
+            ],
         )
         assert len(results) == 1
-        assert results[0].status == 'pass'
-        self._assert_freshness_results('target/pass_source.json', 'pass')
+        assert results[0].status == "pass"
+        self._assert_freshness_results("target/pass_source.json", "pass")
 
 
 class TestSourceFreshnessExclude(SuccessfulSourcesTest):
-    def test_source_freshness_selection_exclude(self, project, ):
+    def test_source_freshness_selection_exclude(
+        self,
+        project,
+    ):
         """Tests node selection using the --select argument. It 'excludes' the
         only source in the project so it should return no results."""
         self._set_updated_at_to(project, timedelta(hours=-2))
         self.freshness_start_time = datetime.utcnow()
         # exclude source directly
         results = self.run_dbt_with_vars(
-            ['source', 'freshness', '--exclude',
-                'source:test_source.test_table', '-o', 'target/exclude_source.json'],
+            [
+                "source",
+                "freshness",
+                "--exclude",
+                "source:test_source.test_table",
+                "-o",
+                "target/exclude_source.json",
+            ],
         )
         assert len(results) == 0
 
 
 class TestSourceFreshnessGraph(SuccessfulSourcesTest):
-    def test_source_freshness_selection_graph_operation(self, project, ):
+    def test_source_freshness_selection_graph_operation(
+        self,
+        project,
+    ):
         """Tests node selection using the --select argument with graph
         operations. `+descendant_model` == select all nodes `descendant_model`
         depends on.
@@ -232,12 +255,18 @@ class TestSourceFreshnessGraph(SuccessfulSourcesTest):
         self.freshness_start_time = datetime.utcnow()
         # select model ancestors
         results = self.run_dbt_with_vars(
-            ['source', 'freshness', '--select',
-                '+descendant_model', '-o', 'target/ancestor_source.json']
+            [
+                "source",
+                "freshness",
+                "--select",
+                "+descendant_model",
+                "-o",
+                "target/ancestor_source.json",
+            ]
         )
         assert len(results) == 1
-        assert results[0].status == 'pass'
-        self._assert_freshness_results('target/ancestor_source.json', 'pass')
+        assert results[0].status == "pass"
+        self._assert_freshness_results("target/ancestor_source.json", "pass")
 
 
 # TODO: convert below
