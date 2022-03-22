@@ -1,6 +1,3 @@
-import pytest
-
-
 error_models__schema_yml = """version: 2
 sources:
   - name: test_source
@@ -155,7 +152,7 @@ models__descendant_model_sql = """select * from {{ source('test_source', 'test_t
 """
 
 models__multi_source_model_sql = """select * from {{ source('test_source', 'other_test_table')}}
-	join {{ source('other_source', 'test_table')}} using (id)
+  join {{ source('other_source', 'test_table')}} using (id)
 """
 
 models__nonsource_descendant_sql = """select * from {{ schema }}.source
@@ -355,88 +352,3 @@ sources:
 
 malformed_schema_tests__model_sql = """select * from {{ source('test_source', 'test_table') }}
 """
-
-
-# @pytest.fixture(scope="class")
-# def error_models():
-#     return {
-#         "schema.yml": error_models__schema_yml,
-#         "model.sql": error_models__model_sql,
-#     }
-
-
-# @pytest.fixture(scope="class")
-# def override_freshness_models():
-#     return {"schema.yml": override_freshness_models__schema_yml}
-
-
-# @pytest.fixture(scope="class")
-# def models():
-#     return {
-#         "schema.yml": models__schema_yml,
-#         "view_model.sql": models__view_model_sql,
-#         "ephemeral_model.sql": models__ephemeral_model_sql,
-#         "descendant_model.sql": models__descendant_model_sql,
-#         "multi_source_model.sql": models__multi_source_model_sql,
-#         "nonsource_descendant.sql": models__nonsource_descendant_sql,
-#     }
-
-
-# @pytest.fixture(scope="class")
-# def malformed_models():
-#     return {
-#         "schema.yml": malformed_models__schema_yml,
-#         "descendant_model.sql": malformed_models__descendant_model_sql,
-#     }
-
-
-# @pytest.fixture(scope="class")
-# def filtered_models():
-#     return {"schema.yml": filtered_models__schema_yml}
-
-
-# @pytest.fixture(scope="class")
-# def macros():
-#     return {"macro.sql": macros__macro_sql}
-
-
-# @pytest.fixture(scope="class")
-# def seeds():
-#     return {
-#         "source.csv": seeds__source_csv,
-#         "other_table.csv": seeds__other_table_csv,
-#         "expected_multi_source.csv": seeds__expected_multi_source_csv,
-#         "other_source_table.csv": seeds__other_source_table_csv,
-#     }
-
-
-# @pytest.fixture(scope="class")
-# def malformed_schema_tests():
-#     return {
-#         "schema.yml": malformed_schema_tests__schema_yml,
-#         "model.sql": malformed_schema_tests__model_sql,
-#     }
-
-
-# @pytest.fixture(scope="class")
-# def project_files(
-#     project_root,
-#     error_models,
-#     override_freshness_models,
-#     models,
-#     malformed_models,
-#     filtered_models,
-#     macros,
-#     seeds,
-#     malformed_schema_tests,
-# ):
-#     write_project_files(project_root, "error_models", error_models)
-#     write_project_files(
-#         project_root, "override_freshness_models", override_freshness_models
-#     )
-#     write_project_files(project_root, "models", models)
-#     write_project_files(project_root, "malformed_models", malformed_models)
-#     write_project_files(project_root, "filtered_models", filtered_models)
-#     write_project_files(project_root, "macros", macros)
-#     write_project_files(project_root, "seeds", seeds)
-#     write_project_files(project_root, "malformed_schema_tests", malformed_schema_tests)

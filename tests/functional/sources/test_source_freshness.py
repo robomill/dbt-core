@@ -13,7 +13,7 @@ from tests.functional.sources.fixtures import (
 )
 
 
-# put these here for now to test
+# put these here for now to get tests working
 class AnyStringWith:
     def __init__(self, contains=None):
         self.contains = contains
@@ -114,7 +114,7 @@ class SuccessfulSourceFreshnessTest(BaseSourcesTest):
 
         assert len(data["results"]) == 1
 
-        # TODO: replace below calls - could they be mroe sane?
+        # TODO: replace below calls - could they be more sane?
         assert data["results"] == [
             {
                 "unique_id": "source.test.test_source.test_table",
@@ -311,11 +311,11 @@ class TestSourceFreshnessFilter(SuccessfulSourceFreshnessTest):
 
 class TestOverrideSourceFreshness(SuccessfulSourceFreshnessTest):
     @pytest.fixture(scope="class")
-    def filtered_models(self):
+    def models(self):
         return {"schema.yml": override_freshness_models__schema_yml}
 
     @staticmethod
-    def get_result_from_unique_id(self, data, unique_id):
+    def get_result_from_unique_id(data, unique_id):
         try:
             return list(filter(lambda x: x["unique_id"] == unique_id, data["results"]))[0]
         except IndexError:
