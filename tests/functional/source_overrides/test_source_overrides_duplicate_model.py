@@ -60,9 +60,9 @@ class TestSourceOverrideDuplicates:
         with pytest.raises(CompilationException) as exc:
             run_dbt(["compile"])
 
-        assert "dbt found two schema.yml entries for the same source named" in str(exc)
-        assert "one of these files" in str(exc)
+        assert "dbt found two schema.yml entries for the same source named" in str(exc.value)
+        assert "one of these files" in str(exc.value)
         schema1_path = os.path.join("models", "schema1.yml")
         schema2_path = os.path.join("models", "schema2.yml")
-        assert schema1_path in str(exc)
-        assert schema2_path in str(exc)
+        assert schema1_path in str(exc.value)
+        assert schema2_path in str(exc.value)
