@@ -29,6 +29,7 @@ def synthesize_generic_test_names(
     test_type: str, test_name: str, args: Dict[str, Any]
 ) -> Tuple[str, str]:
     # Using the type, name, and arguments to this generic test, synthesize a (hopefully) unique name
+    # Will not be unique if multiple tests have same name + arguments, and only configs differ
     # Returns a shorter version (hashed/truncated, for the compiled file)
     # as well as the full name (for the unique_id + FQN)
     flat_args = []
@@ -273,10 +274,8 @@ class TestBuilder(Generic[Testable]):
         self.fqn_name: str = ""
 
         if "name" in self.args:
-            # TODO: Should we append the model name to the test name here?
-            # Or trust the user to have globally unique names within their project?
-            # Logic like this, with accounting for source table targets:
-            # generic_test_name = f"{self.args["name"]}_{target.name}"
+            # Trust the user to have a unique name for this model + column combo
+            # otherwise, raise_duplicate_resource_name later on
             self.compiled_name = self.args["name"]
             self.fqn_name = self.args["name"]
             del self.args["name"]
