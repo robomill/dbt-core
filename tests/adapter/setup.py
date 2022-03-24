@@ -39,6 +39,7 @@ setup(
     packages=find_namespace_packages(include=["dbt", "dbt.*"]),
     install_requires=[
         "dbt-core=={}".format(package_version),
+        "pytest>=7.0.0",
     ],
     zip_safe=False,
     classifiers=[
