@@ -681,7 +681,8 @@ class TestGenericTestsCustomNames:
     def models(self, custom_generic_test_names):  # noqa: F811
         return custom_generic_test_names
 
-    def test_collision_test_names_get_hash(
+    # users can define custom names for specific instances of generic tests
+    def test_generic_tests_with_custom_names(
         self,
         project,
     ):
@@ -712,7 +713,9 @@ class TestGenericTestsCustomNamesAltFormat(TestGenericTestsCustomNames):
         self,
         project,
     ):
-        super().test_collision_test_names_get_hash(project)
+        """These tests don't collide, since they have user-provided custom names,
+        defined using an alternative format"""
+        super().test_generic_tests_with_custom_names(project)
 
 
 class TestInvalidSchema:

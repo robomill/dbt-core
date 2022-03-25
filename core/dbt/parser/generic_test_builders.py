@@ -274,8 +274,8 @@ class TestBuilder(Generic[Testable]):
         self.fqn_name: str = ""
 
         if "name" in self.args:
-            # Trust the user to have a unique name for this model + column combo
-            # otherwise, raise_duplicate_resource_name later on
+            # Assign the user-defined name here, which will be checked for uniqueness later
+            # we will raise an error if two tests have same name for same model + column combo
             self.compiled_name = self.args["name"]
             self.fqn_name = self.args["name"]
             del self.args["name"]

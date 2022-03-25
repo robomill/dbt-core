@@ -859,8 +859,7 @@ def raise_duplicate_resource_name(node_1, node_2):
     # duplicate generic tests
     elif node_type == NodeType.Test and hasattr(node_1, "test_metadata"):
         column_name = f'column "{node_1.column_name}" in ' if node_1.column_name else ""
-        # TODO: we need a better way of storing the target model/source/etc in generic tests
-        model_name = ".".join((node_1.refs or node_1.sources)[0])
+        model_name = node_1.file_key_name
         duped_name = f'{node_1.name}" defined on {column_name}"{model_name}'
         action = "running"
         formatted_name = "tests"
@@ -870,14 +869,16 @@ def raise_duplicate_resource_name(node_1, node_2):
 
     # should this be raise_parsing_error instead?
     raise_compiler_error(
-        f'dbt found two {pluralized} with the name "{duped_name}". '
-        f"\n"
-        f"\nSince these resources have the same name, dbt will be unable to find the correct resource "
-        f"\nwhen {action} {formatted_name}. "
-        f"\n"
-        f"\nTo fix this, change the name of one of these resources: "
-        f"\n- {node_1.unique_id} ({node_1.original_file_path}) "
-        f"\n- {node_2.unique_id} ({node_2.original_file_path})"
+        f"""
+dbt found two {pluralized} with the name "{duped_name}".
+
+Since these resources have the same name, dbt will be unable to find the correct resource
+when {action} {formatted_name}.
+
+To fix this, change the name of one of these resources:
+- {node_1.unique_id} ({node_1.original_file_path})
+- {node_2.unique_id} ({node_2.original_file_path})
+    """.strip()
     )
 
 
