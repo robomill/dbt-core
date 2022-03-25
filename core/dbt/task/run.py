@@ -1,19 +1,10 @@
 import functools
 import threading
 import time
-from typing import List, Dict, Any, Iterable, Set, Tuple, Optional, AbstractSet
-
-from dbt.dataclass_schema import dbtClassMixin
-
-from .compile import CompileRunner, CompileTask
-
-from .printer import (
-    print_run_end_messages,
-    get_counts,
-)
 from datetime import datetime
-from dbt import tracking
-from dbt import utils
+from typing import AbstractSet, Any, Dict, Iterable, List, Optional, Set, Tuple
+
+from dbt import tracking, utils
 from dbt.adapters.base import BaseRelation
 from dbt.clients.jinja import MacroGenerator
 from dbt.context.providers import generate_runtime_model_context
@@ -21,35 +12,44 @@ from dbt.contracts.graph.compiled import CompileResultNode
 from dbt.contracts.graph.manifest import WritableManifest
 from dbt.contracts.graph.model_config import Hook
 from dbt.contracts.graph.parsed import ParsedHookNode
-from dbt.contracts.results import NodeStatus, RunResult, RunStatus, RunningStatus
+from dbt.contracts.results import (
+    NodeStatus,
+    RunningStatus,
+    RunResult,
+    RunStatus,
+)
+from dbt.dataclass_schema import dbtClassMixin
+from dbt.events.functions import fire_event, get_invocation_id
+from dbt.events.types import (
+    DatabaseErrorRunning,
+    EmptyLine,
+    HookFinished,
+    HooksRunning,
+    PrintHookEndLine,
+    PrintHookStartLine,
+    PrintModelErrorResultLine,
+    PrintModelResultLine,
+    PrintStartLine,
+)
 from dbt.exceptions import (
     CompilationException,
     InternalException,
     RuntimeException,
     missing_materialization,
 )
-from dbt.events.functions import fire_event, get_invocation_id
-from dbt.events.types import (
-    DatabaseErrorRunning,
-    EmptyLine,
-    HooksRunning,
-    HookFinished,
-    PrintModelErrorResultLine,
-    PrintModelResultLine,
-    PrintStartLine,
-    PrintHookEndLine,
-    PrintHookStartLine,
-)
-from dbt.logger import (
-    TextOnly,
-    HookMetadata,
-    UniqueID,
-    TimestampNamed,
-    DbtModelState,
-)
 from dbt.graph import ResourceTypeSelector
 from dbt.hooks import get_hook_dict
+from dbt.logger import (
+    DbtModelState,
+    HookMetadata,
+    TextOnly,
+    TimestampNamed,
+    UniqueID,
+)
 from dbt.node_types import NodeType, RunHookType
+
+from .compile import CompileRunner, CompileTask
+from .printer import get_counts, print_run_end_messages
 
 
 class Timer:
@@ -185,6 +185,7 @@ class ModelRunner(CompileRunner):
         )
 
     def print_result_line(self, result):
+        print(dir(result), flush=True)
         description = self.describe_node()
         if result.status == NodeStatus.Error:
             fire_event(
