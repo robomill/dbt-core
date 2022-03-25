@@ -202,7 +202,7 @@ class ModelRunner(CompileRunner):
             fire_event(
                 PrintModelResultLine(
                     description=description,
-                    status=result.message,
+                    status="BALLBAGS",
                     index=self.node_index,
                     total=self.num_nodes,
                     execution_time=result.execution_time,
